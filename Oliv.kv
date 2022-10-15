@@ -1,0 +1,28 @@
+#:kivy 2.1.0
+MainLayout:
+
+
+<MainLayout@GridLayout>:
+    cols: 1
+    rows: 2
+    GridLayout:
+        cols: 4
+        rows: 1
+        size_hint: 1, 0.04
+        Button:
+            text: "Library"
+        Button:
+            text: "History"
+        Button:
+            text: "Extensions"
+        Button:
+            text: "Settings"
+    ImagePanel:
+        scroll_wheel_distance: 100
+        # ReaderWindow:
+        
+
+# <ReaderWindow>:
+#     img1:
+#         id: img1
+#         size_hint_x: 0.8

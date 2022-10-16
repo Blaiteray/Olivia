@@ -1,5 +1,6 @@
 TODO: Create downlaoder of extension                                                    FINISHED
 TODO: Cerate extension loader                                                           FINISHED
+TODO: Creating UI
 TODO: Connect extension loader to UI
 TODO: Create library to show downladed mangas
 TODO: Create manga reader

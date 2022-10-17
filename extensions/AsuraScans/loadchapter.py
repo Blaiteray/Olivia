@@ -7,7 +7,7 @@ chapter number: chapter url. latest chapter comes first.
 import requests
 from bs4 import BeautifulSoup
 
-def load_chapter(manhualink):
+def load_chapter_list(manhualink):
     req = requests.get(manhualink)
     if req.status_code != requests.codes.ok:
         print('ERROR '+req.status_code)
@@ -23,3 +23,6 @@ def load_chapter(manhualink):
 
     return chapter_details
 
+
+def load_chapter_details():
+    pass

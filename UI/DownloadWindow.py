@@ -13,6 +13,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from pathlib  import Path
+from kivy.uix.spinner import Spinner
 
 class DownloadWindowLayout(GridLayout):
     def __init__(self, **kwargs):
@@ -32,6 +33,8 @@ class UpperPannel(GridLayout):
         self.rows = 2
         self.size_hint_y = None
         self.height = 66
+        self.extension_path = Path('./extensions')
+        self.extension_name = os.listdir(self.extension_path)
         self.extension_label = Label(text = 'Select a extension',size_hint_x=None, width=200)
         self.add_widget(self.extension_label)
         self.extension_option =  self.create_dropdown()
@@ -45,18 +48,24 @@ class UpperPannel(GridLayout):
         self.url_input_confirmation = Button(text='OK',size_hint_x=None, width=160)
         self.add_widget(self.url_input_confirmation)
 
-    def create_dropdown(self):
-        dropdown = DropDown()
-        for index in range(10):
-            btn = Button(text='Value %d' % index, size_hint_y=None, height=33)
-            btn.bind(on_release=lambda btn: dropdown.select(btn.text))
-            dropdown.add_widget(btn)
 
-        mainbutton = Button(text='Select Extension')
-        mainbutton.bind(on_release=dropdown.open)
-        dropdown.bind(on_select=lambda instance, x: setattr(mainbutton, 'text', x))
-        return mainbutton
+    def create_dropdown(self):
+        spinner = Spinner(
+            # default value shown
+            text='Home',
+            # available values
+            values=self.extension_name,
+            # just for positioning in our exampl
+            sync_height=True)
+
+        
+
+        spinner.bind(text=self.dropdown_callback)
+        return spinner
     
+    def dropdown_callback(self, spinner, text):
+            print('The spinner', spinner, 'has text', text)
+
     
 
 class LowerPannel(GridLayout):
@@ -78,6 +87,7 @@ class LowerPannel(GridLayout):
         self.chapter_list_buttons = []
         for chapter in self.chapter_list:
             self.chapter_list_buttons.append(Button(text=chapter, size_hint_y=None, height=33))
+            self.chapter_list_buttons[-1].bind(on_release=self.chapter_selction_callback)
             chapter_button_container.add_widget(self.chapter_list_buttons[-1])
         chapter_list_container.add_widget(chapter_button_container)
         return chapter_list_container
@@ -92,6 +102,9 @@ class LowerPannel(GridLayout):
         # manga_name = Label(text=manga_name_str)
         # details_panel.add_widget(manga_name)
         return details_panel
+    
+    def chapter_selction_callback(self, instance):
+        print(getattr(instance, 'text'))
 
 
 class DownloadWindow(App):

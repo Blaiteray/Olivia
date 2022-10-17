@@ -3,7 +3,7 @@ WARNING!!!!! DO NOT RUN THIS FILE FROM THIS DIRECTORY DIRECTLY. USE LoadExtensio
 """
 
 from pathlib import Path
-from extensions.AsuraScans.loadchapterlist import  load_chapter
+from extensions.AsuraScans.loadchapter import  load_chapter_list
 from extensions.AsuraScans.loadchapterimage import  load_image_url, download_images
 import os
 
@@ -21,7 +21,7 @@ def main():
     mangalink = input('Enter chapter link: ').strip()
     manga_title = mangalink[:-1].split('/')[-1] if mangalink[-1] == '/' else mangalink.split('/')[-1]
 
-    chapter_list = load_chapter(mangalink)
+    chapter_list = load_chapter_list(mangalink)
     for i in chapter_list:
         print(i)
 

@@ -3,8 +3,8 @@ WARNING!!!!! DO NOT RUN THIS FILE FROM THIS DIRECTORY DIRECTLY. USE LoadExtensio
 """
 
 from pathlib import Path
-from extensions.AsuraScans.LoadChapterList import  load_chapter
-from extensions.AsuraScans.LoadChapterImage import  load_image_url, download_images
+from extensions.AsuraScans.loadchapterlist import  load_chapter
+from extensions.AsuraScans.loadchapterimage import  load_image_url, download_images
 import os
 
 extension_name = 'AsuraScans'

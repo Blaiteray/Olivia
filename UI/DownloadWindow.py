@@ -1,3 +1,4 @@
+from turtle import onclick
 import kivy
 import os
 kivy.require('2.1.0')
@@ -40,13 +41,21 @@ class UpperPannel(GridLayout):
         self.extension_option =  self.create_dropdown()
         self.add_widget(self.extension_option)
         self.extension_add_confirmation = Button(text = 'Select',size_hint_x=None, width=160)
+        self.extension_add_confirmation.bind(on_press=lambda instance:self.extension_confirmation(self.extension_option.text))
         self.add_widget(self.extension_add_confirmation)
         self.url_input_label = Label(text='Input URL of the manga',size_hint_x=None, width=200)
         self.add_widget(self.url_input_label)
         self.url_input = TextInput(multiline=False)
         self.add_widget(self.url_input)
         self.url_input_confirmation = Button(text='OK',size_hint_x=None, width=160)
+        self.url_input_confirmation.bind(on_press=lambda instance:self.url_confirmation(self.url_input.text))
         self.add_widget(self.url_input_confirmation)
+    
+    def extension_confirmation(self,selected_option):
+        print(selected_option)
+    
+    def url_confirmation(self, selected_url):
+        print(selected_url)
 
 
     def create_dropdown(self):

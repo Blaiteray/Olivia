@@ -6,19 +6,13 @@ if not Path('./extensions').exists():
         print('ERROR! EXTENSION FOLDER DOES NOT EXIST')
         exit()
 
-def extension_loader():
+def extension_loader(selected_extension):
     extension_path = Path('./extensions')
     extension_list = os.listdir(extension_path)
     for extension in extension_list:
         print(extension)
-    selected_extension = input('Selsect an extension: ').strip()
-    while selected_extension not in extension_list:
-        print('Invalid extension name.')
-        selected_extension = input('Selsect an extension: ').strip()
     extension_module = importlib.import_module('extensions'+'.'+selected_extension)
 
-    extension_module.main()
+    return extension_module
     
 
-
-extension_loader()

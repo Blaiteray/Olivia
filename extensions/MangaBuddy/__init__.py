@@ -11,4 +11,4 @@ if not downloadPath.exists():
 print(f'SETUP EXTENSION ({extension_name})): OK')
 
 def main():
-    pass
+    return (None, None)

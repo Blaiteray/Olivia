@@ -3,7 +3,6 @@ load_image function takes the chapter url, returns all the image url in a list.
 """
 
 
-from email.mime import image
 import requests
 import shutil
 from bs4 import BeautifulSoup
@@ -26,7 +25,8 @@ def load_image_url(chapterlink):
     
     return image_links
 
-def download_images(manga_name,chapter_name,image_links):
+def download_images(manga_name,chapter_name,chapterlink):
+    image_links = load_image_url(chapterlink)
     chDownloadPath = Path("./downloads/AsuraScans/") / manga_name / chapter_name
     if not chDownloadPath.exists():
         os.makedirs(chDownloadPath)

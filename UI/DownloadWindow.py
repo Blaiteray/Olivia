@@ -1,4 +1,10 @@
-from turtle import onclick
+"""
+Contains widet class to downlad content. Main widget class is DownloadWindowLayout 
+
+"""
+
+
+import importlib
 import kivy
 import os
 kivy.require('2.1.0')
@@ -15,6 +21,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from pathlib  import Path
 from kivy.uix.spinner import Spinner
+
 
 class DownloadWindowLayout(GridLayout):
     def __init__(self, **kwargs):
@@ -34,6 +41,7 @@ class UpperPannel(GridLayout):
         self.rows = 2
         self.size_hint_y = None
         self.height = 66
+        self.extension_selected = False
         self.extension_path = Path('./extensions')
         self.extension_name = os.listdir(self.extension_path)
         self.extension_label = Label(text = 'Select a extension',size_hint_x=None, width=200)
@@ -52,9 +60,15 @@ class UpperPannel(GridLayout):
         self.add_widget(self.url_input_confirmation)
     
     def extension_confirmation(self,selected_option):
+        self.extension_selected = True
         print(selected_option)
+        self.extension_module = importlib.import_module('extensions'+'.'+selected_option).main()
     
     def url_confirmation(self, selected_url):
+        if self.extension_selected:
+            pass
+        else:
+            print('Select extesion first')
         print(selected_url)
 
 
@@ -116,12 +130,11 @@ class LowerPannel(GridLayout):
         print(getattr(instance, 'text'))
 
 
+#Delete this class after done desiging
 class DownloadWindow(App):
     def build(self):
         return DownloadWindowLayout()
     
 
-if __name__ == '__main__':
-    DownloadWindow().run()
-
-
+# if __name__ == '__main__':
+#     DownloadWindow().run()

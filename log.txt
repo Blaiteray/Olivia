@@ -1,6 +1,7 @@
 TODO: Create downlaoder of extension                                                    FINISHED
 TODO: Cerate extension loader                                                           FINISHED
 TODO: Creating UI for downladeder                                                       FINISHED
+TODO: Fix inconsistency between upper and lower pannel
 TODO: Connect downladeder and extension loader to downlaoder UI
 TODO: Create library to show downladed mangas
 TODO: Create manga reader

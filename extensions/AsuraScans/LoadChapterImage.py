@@ -17,12 +17,13 @@ def load_image_url(chapterlink):
         return
     
     soup = BeautifulSoup(req.content, "html.parser")
-    found_obj = soup.find_all("img", { "class": "alignnone"})
-    
+    found_obj = soup.find_all("img", alt=True)[1:-1]
+
     image_links = []
     for i in range(len(found_obj)):
         image_links.append(found_obj[i].get("src"))
     
+    # print(image_links)
     return image_links
 
 def download_images(manga_name,chapter_name,chapterlink):
@@ -53,3 +54,5 @@ def download_images(manga_name,chapter_name,chapterlink):
 
 # download_images('the-dark-magician-transmigrates-after-66666-years','Chapter 56', 
 #     load_image_url('https://asura.gg/the-dark-magician-transmigrates-after-66666-years-chapter-56/'))
+
+# load_image_url('https://asura.gg/standard-of-reincarnation-chapter-11/')

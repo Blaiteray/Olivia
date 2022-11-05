@@ -60,9 +60,13 @@ class UpperPannel(GridLayout):
         self.add_widget(self.url_input_confirmation)
     
     def extension_confirmation(self,selected_option):
-        self.extension_selected = True
+        
         print(selected_option)
-        self.extension_module = importlib.import_module('extensions'+'.'+selected_option).main()
+        if selected_option in self.extension_name:
+            self.extension_selected = True
+            self.extension_module = importlib.import_module('extensions'+'.'+selected_option).main()
+        else:
+            print('Please select an option')
     
     def url_confirmation(self, selected_url):
         if self.extension_selected:
@@ -96,13 +100,13 @@ class LowerPannel(GridLayout):
         super().__init__(**kwargs)
         self.rows = 1
         self.cols = 2
-        self.chapter_list_panel = self.create_chapter_list_panel()
+        self.chapter_list_panel = self.create_chapter_list_panel([])
         self.add_widget(self.chapter_list_panel)
         self.details_panel = self.create_details_panel()
         self.add_widget(self.details_panel)
         
-    def create_chapter_list_panel(self):
-        self.chapter_list = ['Chapter '+str(i) for i in range(30)]
+    def create_chapter_list_panel(self, chapter_list):
+        self.chapter_list = chapter_list
         chapter_list_container = ScrollView(scroll_wheel_distance = 100)
         chapter_button_container = BoxLayout(orientation='vertical',size_hint_y=None, height=len(self.chapter_list)*33+33)
         instruction_label = Label(text='Select chapters to download', size_hint_y=None, height=33)

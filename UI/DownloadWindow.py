@@ -39,6 +39,7 @@ class DownloadWindowLayout(GridLayout):
         self.upperPannel.url_input_confirmation.bind(on_press=lambda i:self.url_confirmation(self.upperPannel.url_input.text))
 
     def url_confirmation(self, selected_url):
+        self.upperPannel.extension_confirmation(self.upperPannel.extension_option.text)
         if self.upperPannel.extension_selected:
             chapter_list = self.upperPannel.extension_module[0](selected_url)
             if chapter_list:
@@ -55,30 +56,34 @@ class DownloadWindowLayout(GridLayout):
 class UpperPannel(GridLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.cols = 3
-        self.rows = 2
+        self.cols = 2
+        self.rows = 1
+        input_box = GridLayout(cols=2, rows=2)
+        
         self.size_hint_y = None
         self.height = 66
         self.extension_selected = False
         self.extension_path = Path('./extensions')
         self.extension_name = os.listdir(self.extension_path)
         self.extension_label = Label(text = 'Select a extension',size_hint_x=None, width=200)
-        self.add_widget(self.extension_label)
+        input_box.add_widget(self.extension_label)
         self.extension_option =  self.create_dropdown()
-        self.add_widget(self.extension_option)
-        self.extension_add_confirmation = Button(text = 'Select',size_hint_x=None, width=160)
-        self.extension_add_confirmation.bind(on_press=lambda instance:self.extension_confirmation(self.extension_option.text))
-        self.add_widget(self.extension_add_confirmation)
+        input_box.add_widget(self.extension_option)
+        # self.extension_add_confirmation = Button(text = 'Select',size_hint_x=None, width=160)
+        # self.extension_add_confirmation.bind(on_press=lambda instance:self.extension_confirmation(self.extension_option.text))
+        # input_box.add_widget(self.extension_add_confirmation)
         self.url_input_label = Label(text='Input URL of the manga',size_hint_x=None, width=200)
-        self.add_widget(self.url_input_label)
+        input_box.add_widget(self.url_input_label)
         self.url_input = TextInput(multiline=False)
-        self.add_widget(self.url_input)
+        input_box.add_widget(self.url_input)
+
         self.url_input_confirmation = Button(text='OK',size_hint_x=None, width=160)
+
+        self.add_widget(input_box)
         self.add_widget(self.url_input_confirmation)
     
     def extension_confirmation(self,selected_option):
         
-        print(selected_option)
         if selected_option in self.extension_name:
             self.extension_selected = True
             self.extension_module = importlib.import_module('extensions'+'.'+selected_option).main()

@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 def load_chapter_list(manhualink):
     req = requests.get(manhualink)
     if req.status_code != requests.codes.ok:
-        print('ERROR '+req.status_code)
+        print('ERROR '+str(req.status_code))
         return
 
     soup = BeautifulSoup(req.content, "html.parser")

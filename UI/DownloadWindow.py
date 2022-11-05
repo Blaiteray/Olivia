@@ -5,6 +5,8 @@ Contains widet class to downlad content. Main widget class is DownloadWindowLayo
 
 
 import importlib
+from re import L
+from turtle import right
 import kivy
 import os
 kivy.require('2.1.0')
@@ -34,6 +36,22 @@ class DownloadWindowLayout(GridLayout):
         self.add_widget(self.lowerPannel)
 
 
+        self.upperPannel.url_input_confirmation.bind(on_press=lambda i:self.url_confirmation(self.upperPannel.url_input.text))
+
+    def url_confirmation(self, selected_url):
+        if self.upperPannel.extension_selected:
+            chapter_list = self.upperPannel.extension_module[0](selected_url)
+            if chapter_list:
+                self.lowerPannel.create_chapter_list_panel(chapter_list)
+                self.lowerPannel.create_details_panel()
+                self.lowerPannel.download_link = selected_url
+                self.lowerPannel.image_downloader = self.upperPannel.extension_module[1]
+            else:
+                print('ERROR! INPUT A VALID URL')
+        else:
+            print('Select extesion first')
+        print(selected_url)
+
 class UpperPannel(GridLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -56,7 +74,6 @@ class UpperPannel(GridLayout):
         self.url_input = TextInput(multiline=False)
         self.add_widget(self.url_input)
         self.url_input_confirmation = Button(text='OK',size_hint_x=None, width=160)
-        self.url_input_confirmation.bind(on_press=lambda instance:self.url_confirmation(self.url_input.text))
         self.add_widget(self.url_input_confirmation)
     
     def extension_confirmation(self,selected_option):
@@ -68,12 +85,7 @@ class UpperPannel(GridLayout):
         else:
             print('Please select an option')
     
-    def url_confirmation(self, selected_url):
-        if self.extension_selected:
-            pass
-        else:
-            print('Select extesion first')
-        print(selected_url)
+    
 
 
     def create_dropdown(self):
@@ -100,38 +112,93 @@ class LowerPannel(GridLayout):
         super().__init__(**kwargs)
         self.rows = 1
         self.cols = 2
-        self.chapter_list_panel = self.create_chapter_list_panel([])
-        self.add_widget(self.chapter_list_panel)
-        self.details_panel = self.create_details_panel()
-        self.add_widget(self.details_panel)
+        self.download_link = ''
+        self.selected_chapters = []
+        self.image_downloader = None
+        # self.create_chapter_list_panel([])
+        
         
     def create_chapter_list_panel(self, chapter_list):
-        self.chapter_list = chapter_list
-        chapter_list_container = ScrollView(scroll_wheel_distance = 100)
-        chapter_button_container = BoxLayout(orientation='vertical',size_hint_y=None, height=len(self.chapter_list)*33+33)
-        instruction_label = Label(text='Select chapters to download', size_hint_y=None, height=33)
-        chapter_button_container.add_widget(instruction_label)
-        self.chapter_list_buttons = []
-        for chapter in self.chapter_list:
-            self.chapter_list_buttons.append(Button(text=chapter, size_hint_y=None, height=33))
-            self.chapter_list_buttons[-1].bind(on_release=self.chapter_selction_callback)
-            chapter_button_container.add_widget(self.chapter_list_buttons[-1])
-        chapter_list_container.add_widget(chapter_button_container)
-        return chapter_list_container
+        if 'chapter_list_panel' in self.__dict__:
+            pass
+        else:
+            self.chapter_list = chapter_list
+            chapter_list_container = ScrollView(scroll_wheel_distance = 100)
+            chapter_button_container = BoxLayout(orientation='vertical',size_hint_y=None, height=len(self.chapter_list)*33+33)
+            instruction_label = Label(text='Select chapters to download', size_hint_y=None, height=33)
+            chapter_button_container.add_widget(instruction_label)
+            self.chapter_list_buttons = []
+            for chapter in self.chapter_list:
+                self.chapter_list_buttons.append(Button(text=chapter, size_hint_y=None, height=33))
+                self.chapter_list_buttons[-1].bind(on_release=self.chapter_selction_callback)
+                chapter_button_container.add_widget(self.chapter_list_buttons[-1])
+            chapter_list_container.add_widget(chapter_button_container)
+            self.chapter_list_panel = chapter_list_container
+            self.add_widget(self.chapter_list_panel)
     
     def create_details_panel(self):
-        details_panel = GridLayout(cols=1, rows=2)
-        # manga_cover_image_location = str(Path('.'))
-        # manga_cover = Image(src=manga_cover_image_location)
-        # manga_cover.size_hint_y = 1.5
-        # details_panel.add_widget(manga_cover)
-        # manga_name_str = ''
-        # manga_name = Label(text=manga_name_str)
-        # details_panel.add_widget(manga_name)
-        return details_panel
-    
+        if 'details_panel' in self.__dict__:
+            if self.selected_chapters:
+                self.first_chapter.text = str(min(self.selected_chapters))
+                self.last_chapter.text = str(max(self.selected_chapters))
+        else:
+            right_panel = GridLayout(cols=1, rows=2)
+            info_panel = Button(text='Info', size_hint_y=0.8)
+            details_panel = GridLayout(cols=2, rows=3, size_hint_y=0.2)
+            right_panel.add_widget(info_panel)
+            right_panel.add_widget(details_panel)
+
+            self.first_chapter = Label(text='Not Selected')
+            self.last_chapter = Label(text='Not Selected')
+
+            details_panel.add_widget(Label(text='First Chapter:'))
+            details_panel.add_widget(self.first_chapter)
+            details_panel.add_widget(Label(text='Last Chapter:'))
+            details_panel.add_widget(self.last_chapter)
+
+            reset_chapter_selected = Button(text='Reset')
+            reset_chapter_selected.bind(on_press=self.rest_chpater_list)
+            details_panel.add_widget(reset_chapter_selected)
+
+            download_confirmation_button = Button(text='Download')
+            download_confirmation_button.bind(on_press=self.download_confirmation)
+            details_panel.add_widget(download_confirmation_button)
+
+            self.details_panel = details_panel
+            self.add_widget(right_panel)
+        
     def chapter_selction_callback(self, instance):
+        self.selected_chapters.append(getattr(instance, 'text'))
+        self.create_details_panel()
         print(getattr(instance, 'text'))
+    
+    def download_confirmation(self, i):
+        mangalink = self.download_link
+        manga_title = mangalink[:-1].split('/')[-1] if mangalink[-1] == '/' else mangalink.split('/')[-1]
+
+        start_chapter_name = min(self.selected_chapters)
+        end_chapter_name = max(self.selected_chapters)
+        
+        chapters_to_download = []
+        temp = False
+        for i in self.chapter_list:
+            if i == end_chapter_name:
+                temp = True
+            if temp:
+                chapters_to_download.append(i)
+            if i == start_chapter_name:
+                break
+        chapters_to_download.reverse()
+
+        for chapter in chapters_to_download:
+            self.image_downloader(manga_title,chapter, self.chapter_list[chapter])
+        else:
+            print('DONE')
+    
+    def rest_chpater_list(self, i):
+        self.selected_chapters = []
+        self.first_chapter.text = 'Not Selected'
+        self.last_chapter.text = 'Not Selected'
 
 
 #Delete this class after done desiging

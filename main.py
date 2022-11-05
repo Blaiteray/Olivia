@@ -2,9 +2,6 @@
 A manga downloading and reading tool
 """
 
-
-from tkinter import Grid
-from turtle import width
 import kivy
 kivy.require('2.1.0')
 
@@ -15,41 +12,38 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.uix.image import Image
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
 
 
-class ImagePanel(ScrollView):
+class MainLayout(GridLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.readerWindow = ReaderWindow()
-        self.add_widget(self.readerWindow)
+        self.cols = 1
+        self.rows = 2
+        self.upperGrid = GridLayout(rows=1, cols=4, size_hint=(1, 0.04))
+        self.upperGrid.add_widget(Button(text="Library"))
+        self.upperGrid.add_widget(Button(text="History"))
+        self.upperGrid.add_widget(Button(text="Extensions"))
+        app_settings = Button(text="Settings")
+        app_settings.bind(on_press=self.test_cb)
+        self.upperGrid.add_widget(app_settings)
 
-    def on_scroll_stop(self, touch, check_children=True):
-        if self.scroll_y <0 and hasattr(self,'readerWindow') and hasattr(self.readerWindow, 'change_img'):
-            self.readerWindow.change_img()
-            self.readerWindow.height += self.readerWindow.current_img[-1].height
-            # self.scroll_y += self.readerWindow.current_img[-1].height
-        return super().on_scroll_stop(touch, check_children)
-
-class ReaderWindow(BoxLayout):
-    def change_img(self):
-        self.add_image("10.jpg")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.orientation = "vertical"
-        self.current_img = []
-        self.size_hint = (1, None)
-        self.add_image("2.jpg")
+        self.add_widget(self.upperGrid)
+        self.add_widget(Button(text='Lower Grid'))
     
-    def add_image(self, loc):
-        img1 = Image(source=loc)
-        img1.allow_stretch = True
-        img1.height = Window.width/img1.image_ratio
-        img1.reload()
-        self.add_widget(img1)
-        self.height = img1.height
-        self.current_img.append(img1)
+    def test_cb(self, i):
+        content = Button(text='Close me!')
+        popup = Popup(content=content, auto_dismiss=False, size_hint=(.5, .5))
+
+        # bind the on_press event of the button to the dismiss function
+        content.bind(on_press=popup.dismiss)
+
+        # open the popup
+        popup.open()
+
 class OlivApp(App):
-    pass
+    def build(self):
+        return MainLayout()
 
 OlivApp().run()

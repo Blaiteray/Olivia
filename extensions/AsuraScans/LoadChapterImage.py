@@ -13,8 +13,8 @@ import re
 def load_image_url(chapterlink):
     req = requests.get(chapterlink)
     if req.status_code != requests.codes.ok:
-        print('ERROR '+req.status_code)
-        return
+        print('ERROR '+str(req.status_code))
+        return 'ERROR '+str(req.status_code)
     
     soup = BeautifulSoup(req.content, "html.parser")
     found_obj = soup.find_all("img", alt=True)[1:-1]
@@ -44,13 +44,13 @@ def download_images(manga_name,chapter_name,chapterlink):
             with open(file_name,'wb') as f:
                 shutil.copyfileobj(res.raw, f)
         else:
-            print("ERROR "+res.status_code)
+            print("ERROR "+str(res.status_code))
             os.chdir(current_dir)
-            break
+            return "ERROR "+str(res.status_code)
     else:
         os.chdir(current_dir)
         print(chapter_name+' DOWNLOAD STATUS: OK')
-
+        return 'OK'
 
 # download_images('the-dark-magician-transmigrates-after-66666-years','Chapter 56', 
 #     load_image_url('https://asura.gg/the-dark-magician-transmigrates-after-66666-years-chapter-56/'))

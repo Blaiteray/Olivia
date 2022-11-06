@@ -12,7 +12,7 @@ def load_chapter_list(manhualink):
         req = requests.get(manhualink)
         if req.status_code != requests.codes.ok:
             print('ERROR '+str(req.status_code))
-            return
+            return 'ERROR '+str(req.status_code)
 
         soup = BeautifulSoup(req.content, "html.parser")
         found_obj = soup.find_all("div", { "class": "eph-num"})
@@ -24,7 +24,8 @@ def load_chapter_list(manhualink):
 
         return chapter_details
     except:
-        print('ERROR! INVALID URL')
+        print('CONNECTION ERROR!')
+        return 'CONNECTION ERROR!'
 
 
 def load_chapter_details():

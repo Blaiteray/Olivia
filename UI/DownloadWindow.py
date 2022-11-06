@@ -23,7 +23,14 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from pathlib  import Path
 from kivy.uix.spinner import Spinner
+from kivy.uix.popup import Popup
 
+
+def create_popup(msg, t='ERROR!'):
+    content = Button(text=msg)
+    popup = Popup(content=content, auto_dismiss=False, size_hint=(.4, .4),title=t)
+    content.bind(on_press=popup.dismiss)
+    popup.open()
 
 class DownloadWindowLayout(GridLayout):
     def __init__(self, **kwargs):
@@ -40,17 +47,18 @@ class DownloadWindowLayout(GridLayout):
 
     def url_confirmation(self, selected_url):
         self.upperPannel.extension_confirmation(self.upperPannel.extension_option.text)
-        if self.upperPannel.extension_selected:
+        if not selected_url and self.upperPannel.extension_selected:
+                create_popup('Enter an URL')
+        elif self.upperPannel.extension_selected:
             chapter_list = self.upperPannel.extension_module[0](selected_url)
-            if chapter_list:
+            if isinstance(chapter_list, dict):
                 self.lowerPannel.create_chapter_list_panel(chapter_list)
                 self.lowerPannel.create_details_panel()
                 self.lowerPannel.download_link = selected_url
                 self.lowerPannel.image_downloader = self.upperPannel.extension_module[1]
             else:
+                create_popup('Connection Error!')
                 print('ERROR! INPUT A VALID URL')
-        else:
-            print('Select extesion first')
         print(selected_url)
 
 class UpperPannel(GridLayout):
@@ -88,6 +96,7 @@ class UpperPannel(GridLayout):
             self.extension_selected = True
             self.extension_module = importlib.import_module('extensions'+'.'+selected_option).main()
         else:
+            create_popup('Select an Extension first.')
             print('Please select an option')
     
     
@@ -95,11 +104,8 @@ class UpperPannel(GridLayout):
 
     def create_dropdown(self):
         spinner = Spinner(
-            # default value shown
-            text='Home',
-            # available values
+            text='Select an Extension',
             values=self.extension_name,
-            # just for positioning in our exampl
             sync_height=True)
 
         
@@ -178,27 +184,35 @@ class LowerPannel(GridLayout):
         print(getattr(instance, 'text'))
     
     def download_confirmation(self, i):
-        mangalink = self.download_link
-        manga_title = mangalink[:-1].split('/')[-1] if mangalink[-1] == '/' else mangalink.split('/')[-1]
+        if self.selected_chapters:
+            mangalink = self.download_link
+            manga_title = mangalink[:-1].split('/')[-1] if mangalink[-1] == '/' else mangalink.split('/')[-1]
 
-        start_chapter_name = min(self.selected_chapters)
-        end_chapter_name = max(self.selected_chapters)
-        
-        chapters_to_download = []
-        temp = False
-        for i in self.chapter_list:
-            if i == end_chapter_name:
-                temp = True
-            if temp:
-                chapters_to_download.append(i)
-            if i == start_chapter_name:
-                break
-        chapters_to_download.reverse()
+            start_chapter_name = min(self.selected_chapters)
+            end_chapter_name = max(self.selected_chapters)
+            
+            chapters_to_download = []
+            temp = False
+            for i in self.chapter_list:
+                if i == end_chapter_name:
+                    temp = True
+                if temp:
+                    chapters_to_download.append(i)
+                if i == start_chapter_name:
+                    break
+            chapters_to_download.reverse()
 
-        for chapter in chapters_to_download:
-            self.image_downloader(manga_title,chapter, self.chapter_list[chapter])
+            for chapter in chapters_to_download:
+                msg = self.image_downloader(manga_title,chapter, self.chapter_list[chapter])
+                if msg != 'OK':
+                    create_popup('Download Interrupted')
+                    break
+            else:
+                create_popup('DONE!', 'MESSAGE')
+                print('DONE')
         else:
-            print('DONE')
+            create_popup('Select a chapter to download')
+            print('Select a chapter to download')
     
     def rest_chpater_list(self, i):
         self.selected_chapters = []

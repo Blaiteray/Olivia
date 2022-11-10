@@ -4,9 +4,8 @@ Contains widet class to downlad content. Main widget class is DownloadWindowLayo
 """
 
 
+from threading import Thread
 import importlib
-from re import L
-from turtle import right
 import kivy
 import os
 kivy.require('2.1.0')
@@ -16,7 +15,6 @@ Window.minimum_width, Window.minimum_height = (800, 600)
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
-from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.boxlayout import BoxLayout
@@ -183,7 +181,7 @@ class LowerPannel(GridLayout):
         self.create_details_panel()
         print(getattr(instance, 'text'))
     
-    def download_confirmation(self, i):
+    def download_confirmation(self, ix):
         if self.selected_chapters:
             mangalink = self.download_link
             manga_title = mangalink[:-1].split('/')[-1] if mangalink[-1] == '/' else mangalink.split('/')[-1]
@@ -202,17 +200,40 @@ class LowerPannel(GridLayout):
                     break
             chapters_to_download.reverse()
 
-            for chapter in chapters_to_download:
-                msg = self.image_downloader(manga_title,chapter, self.chapter_list[chapter])
-                if msg != 'OK':
-                    create_popup('Download Interrupted')
-                    break
-            else:
-                create_popup('DONE!', 'MESSAGE')
-                print('DONE')
+            self.download_concluded = False
+            self.current_chapter = ''
+            def final_popup_cb(iy):
+                if self.download_concluded:
+                    self.final_popup.dismiss(iy)
+
+                
+            self.final_content = Button(text='Downloading...')
+            self.final_popup = Popup(content=self.final_content, auto_dismiss=False, size_hint=(.5, .5),title='MESSAGE')
+            self.final_content.bind(on_press=final_popup_cb)
+            self.final_popup.open()
+
+            dw_thread = Thread(target=self.downloading_thread, args=(chapters_to_download, manga_title))
+            dw_thread.daemon = True
+            dw_thread.start()
+
+            
+            
         else:
             create_popup('Select a chapter to download')
             print('Select a chapter to download')
+    
+    def downloading_thread(self, chapters_to_download, manga_title):
+        for chapter in chapters_to_download:
+            self.final_content.text = 'Downloading...\nCurrent Chapter: '+str(chapter)
+            msg = self.image_downloader(manga_title,chapter, self.chapter_list[chapter])
+            if msg != 'OK':
+                self.final_content.text = 'Download Interrupted!'
+                self.download_concluded = True
+                break
+        else:
+            self.final_content.text = 'Download Completed!'
+            self.download_concluded = True
+            print('DONE')
     
     def rest_chpater_list(self, i):
         self.selected_chapters = []

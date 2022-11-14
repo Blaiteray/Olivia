@@ -22,11 +22,15 @@ class ReaderLayout(GridLayout):
         self.add_widget(self.image_container)
     
     def create_toolbar(self):
-        tool_bar_buttons = GridLayout(rows=1, cols=4,size_hint_y=None, height=self.toolbar_height)
-        prev_button = Button(text='<<', size_hint=(0.35, None), height=self.toolbar_height)
-        next_button = Button(text='>>', size_hint=(0.35, None), height=self.toolbar_height)
-        zoom_in_button = Button(text='+', size_hint=(0.15, None), height=self.toolbar_height, on_press=self.zoom_cb)
-        zoom_out_button = Button(text='-', size_hint=(0.15, None), height=self.toolbar_height, on_press=self.zoom_cb)
+        tool_bar_buttons = GridLayout(rows=1, cols=5,size_hint_y=None, height=self.toolbar_height)
+        prev_button = Button(text='<<', size_hint=(0.3, None), height=self.toolbar_height)
+        next_button = Button(text='>>', size_hint=(0.3, None), height=self.toolbar_height)
+        close_button = Button(text='Close', size_hint=(0.08, None), height=self.toolbar_height)
+        zoom_in_button = Button(text='+', size_hint=(0.16, None), height=self.toolbar_height, on_press=self.zoom_cb)
+        zoom_out_button = Button(text='-', size_hint=(0.16, None), height=self.toolbar_height, on_press=self.zoom_cb)
+        
+        self.close_pos = 4 # Position of close button starting from right, where rightmost button has position 0.
+        tool_bar_buttons.add_widget(close_button)
         tool_bar_buttons.add_widget(prev_button)
         tool_bar_buttons.add_widget(zoom_in_button)
         tool_bar_buttons.add_widget(zoom_out_button)
@@ -51,7 +55,7 @@ class ImageContainer(ScrollView):
         self.scroll_wheel_distance = 100
         self.scroll_type = ['bars', 'content']
         self.bar_width = 15
-        image_list = sorted(os.listdir(chapter_folder), key=sort_ord)[:-1]
+        image_list = sorted(os.listdir(chapter_folder), key=sort_ord)
         self.display_items = list(map(lambda x: Image(source=str(chapter_folder/x)) ,image_list))
         inside_box_height = 0
         for item in self.display_items:
@@ -76,7 +80,3 @@ class ImageContainer(ScrollView):
 class Temp(App):
     def build(self):
         return ReaderLayout(Path('downloads/AsuraScans/murim-login/Chapter 03'))
-
-
-if __name__ == '__main__':
-    Temp().run()

@@ -10,8 +10,10 @@ from kivy.uix.image import Image
 from pathlib import Path
 from math import ceil
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.popup import Popup
 
 from customlib import create_popup, sort_ord
+from UI import Reader
 
 class LibraryLayout(GridLayout):
     def __init__(self, **kwargs):
@@ -47,7 +49,6 @@ class FolderContainer(ScreenManager):
         self.last_back = None
 
 
-    
     def extension_select_cb(self, i):
         self.extension_path = self.download_path / i.text
         self.transition.direction = 'left'
@@ -63,12 +64,21 @@ class FolderContainer(ScreenManager):
         self.manga_path = self.extension_path/ '-'.join(i.text.split(' ')).lower()
         self.transition.direction = 'left'
         self.current = 'chapter_list'
-        self.current_manga = FolderView(self.manga_path, False, lambda x: None, 4, 40, 5, 20)
+        self.currnet_manga_name = i.text
+        self.current_manga = FolderView(self.manga_path, False, self.chapter_select_cb, 4, 40, 5, 20)
         self.chapter_list_screen.clear_widgets()
         self.chapter_list_screen.add_widget(self.current_manga)
         self.history_stack.append(self.current)
         self.last_back = None
         print(self.manga_path)
+    
+    def chapter_select_cb(self, i):
+        self.chapter_path = self.manga_path / i.text
+        content = Reader.ReaderLayout(self.chapter_path)
+        popup = Popup(content=content, auto_dismiss=False,title=f'{self.currnet_manga_name} [{i.text}]')
+        content.image_container.toolbar_up.children[content.close_pos].bind(on_press=popup.dismiss)
+        content.image_container.toolbar_down.children[content.close_pos].bind(on_press=popup.dismiss)
+        popup.open()
     
     def go_back(self, i):
         if len(self.history_stack) > 1:

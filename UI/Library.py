@@ -88,7 +88,7 @@ class FolderContainer(ScreenManager):
 class FolderView(ScrollView):
     def __init__(self, path, simplify, extension_select_cb, folder_in_row=3, height_scale=150, spacing=10, padding=20):
         super().__init__()
-        self.scroll_distance = 100
+        self.scroll_wheel_distance = 100
         self.extension_list = []
         if path.exists():
             self.extension_list = sorted(os.listdir(path), key=sort_ord)

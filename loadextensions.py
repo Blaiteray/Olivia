@@ -16,5 +16,5 @@
 #     return extension_module
     
 
-from UI import DownloadWindow
-DownloadWindow.DownloadWindow().run()
+from UI import Reader
+Reader.Temp().run()

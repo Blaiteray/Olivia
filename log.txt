@@ -8,5 +8,5 @@ TODO: Connect downladeder and extension loader to downlaoder UI                 
 TODO: Apply Multithreading in Downloader                                                FINISHED
 TODO: Create library to show downladed mangas                                           FINISHED
 TODO: Create manga reader                                                               FINISHED
-TODO: Add reader to library
+TODO: Add reader to library                                                             FINISHED
 TODO: Create settings to customize reader view

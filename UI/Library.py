@@ -73,12 +73,42 @@ class FolderContainer(ScreenManager):
         print(self.manga_path)
     
     def chapter_select_cb(self, i):
+        self.current_chapter = i.text
         self.chapter_path = self.manga_path / i.text
-        content = Reader.ReaderLayout(self.chapter_path)
-        popup = Popup(content=content, auto_dismiss=False,title=f'{self.currnet_manga_name} [{i.text}]')
-        content.image_container.toolbar_up.children[content.close_pos].bind(on_press=popup.dismiss)
-        content.image_container.toolbar_down.children[content.close_pos].bind(on_press=popup.dismiss)
-        popup.open()
+        self.reader_content = Reader.ReaderLayout(self.chapter_path, 800)
+        self.reader_popup = Popup(content=self.reader_content, auto_dismiss=False,title=f'{self.currnet_manga_name} [{i.text}]')
+        self.reader_content.close_button.bind(on_press=self.reader_popup.dismiss)
+        self.reader_content.next_button.bind(on_press=self.next_chapter_button_cb)
+        self.reader_content.prev_button.bind(on_press=self.prev_chapter_button_cb)
+        self.reader_popup.open()
+    
+    def next_chapter_button_cb(self, i):
+        if self.current_chapter == self.current_manga.item_list[-1]:
+            create_popup('No next chapter', 'MESSAGE')
+        else:
+            image_width = self.reader_content.image_width
+            self.current_chapter = self.current_manga.item_list[self.current_manga.item_list.index(self.current_chapter)+1]
+            self.chapter_path = self.manga_path / self.current_chapter
+            self.reader_content = Reader.ReaderLayout(self.chapter_path, image_width)
+            self.reader_popup.content = self.reader_content
+            self.reader_popup.title=f'{self.currnet_manga_name} [{self.current_chapter}]'
+            self.reader_content.close_button.bind(on_press=self.reader_popup.dismiss)
+            self.reader_content.next_button.bind(on_press=self.next_chapter_button_cb)
+            self.reader_content.prev_button.bind(on_press=self.prev_chapter_button_cb)
+    
+    def prev_chapter_button_cb(self, i):
+        if self.current_chapter == self.current_manga.item_list[0]:
+            create_popup('No previous chapter', 'MESSAGE')
+        else:
+            image_width = self.reader_content.image_width
+            self.current_chapter = self.current_manga.item_list[self.current_manga.item_list.index(self.current_chapter)-1]
+            self.chapter_path = self.manga_path / self.current_chapter
+            self.reader_content = Reader.ReaderLayout(self.chapter_path, image_width)
+            self.reader_popup.content = self.reader_content
+            self.reader_popup.title=f'{self.currnet_manga_name} [{self.current_chapter}]'
+            self.reader_content.close_button.bind(on_press=self.reader_popup.dismiss)
+            self.reader_content.next_button.bind(on_press=self.next_chapter_button_cb)
+            self.reader_content.prev_button.bind(on_press=self.prev_chapter_button_cb)
     
     def go_back(self, i):
         if len(self.history_stack) > 1:
@@ -99,24 +129,24 @@ class FolderView(ScrollView):
     def __init__(self, path, simplify, extension_select_cb, folder_in_row=3, height_scale=150, spacing=10, padding=20):
         super().__init__()
         self.scroll_wheel_distance = 100
-        self.extension_list = []
+        self.item_list = []
         if path.exists():
-            self.extension_list = sorted(os.listdir(path), key=sort_ord)
+            self.item_list = sorted(os.listdir(path), key=sort_ord)
             if simplify:
-                self.extension_list = list(map(lambda x: ' '.join(x.split('-')).title() ,self.extension_list))
+                self.item_list = list(map(lambda x: ' '.join(x.split('-')).title() ,self.item_list))
         else:
             create_popup('Please wait while downloading.', 'MESSAGE')
 
-        folder_rows = ceil(len(self.extension_list)/folder_in_row)
+        folder_rows = ceil(len(self.item_list)/folder_in_row)
         self.boxlayout_inside = BoxLayout(orientation = 'vertical', size_hint_y = None, height = folder_rows*(height_scale+spacing)+2*padding)
         self.add_widget(self.boxlayout_inside)
 
         self.folder_container = GridLayout(rows=folder_rows, cols=folder_in_row, spacing=(spacing,spacing), padding=[padding]*4)
         self.boxlayout_inside.add_widget(self.folder_container)
-        for i in self.extension_list:
+        for i in self.item_list:
             self.folder_container.add_widget(Button(text=i, size_hint_y=None, height=height_scale, size_hint_x=1/folder_in_row, on_press=extension_select_cb))
-        if len(self.extension_list) < folder_in_row:
-            self.folder_container.add_widget(Label(text='', size_hint_y=None, height=height_scale, size_hint_x=1/folder_in_row*(folder_in_row-len(self.extension_list)%folder_in_row)))
+        if len(self.item_list) < folder_in_row:
+            self.folder_container.add_widget(Label(text='', size_hint_y=None, height=height_scale, size_hint_x=1/folder_in_row*(folder_in_row-len(self.item_list)%folder_in_row)))
 
 
 
